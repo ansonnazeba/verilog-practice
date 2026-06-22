@@ -308,3 +308,157 @@ This repository is intended to build practical RTL design habits:
 * Organize projects clearly
 * Prefer one clock and enable signals over generated clocks
 * Build toward larger FPGA-style systems gradually
+
+# Verilog Practice
+
+A collection of small Verilog/SystemVerilog projects focused on RTL fundamentals, simulation, waveform debugging, and self-checking testbenches.
+
+This repository tracks my progression through core digital design concepts, including combinational logic, sequential logic, counters, finite state machines, module integration, and verification with Icarus Verilog and GTKWave.
+
+## Tools
+
+- Verilog / SystemVerilog
+- Icarus Verilog
+- GTKWave
+- VS Code
+- Git / GitHub
+
+## Projects
+
+| Project | Description | Key Concepts |
+|---|---|---|
+| Project 1 | Basic Verilog practice | Modules, ports, `assign`, simple testbenches |
+| Project 2 | LED counter | Sequential logic, counters, reset, enable |
+| Project 3 | LED up/down counter | Direction control, tick logic, holding state |
+| Project 4 | Parking gate FSM | FSM design, state transitions, output logic |
+| Project 5 | Vending machine FSM | Moore FSM, coin input modeling, change return |
+| Project 6 | BCD counter + seven-segment decoder | BCD counting, decoder logic, module integration, self-checking tests |
+
+## Project 6: BCD Counter + Seven-Segment Decoder
+
+This is the most complete project so far. It connects a BCD counter to a seven-segment decoder and verifies the full integrated design.
+
+```text
+project 6/
+├── bcd_counter/
+│   ├── bcd_counter.sv
+│   └── bcd_counter_tb.sv
+├── seven_seg_decoder/
+│   ├── seven_seg_decoder.sv
+│   └── seven_seg_decoder_tb.sv
+└── bcd_7seg_top/
+    ├── bcd_7seg_top.sv
+    └── bcd_7seg_top_tb.sv
+```
+
+### BCD Counter
+
+Counts from decimal `0` to `9`, then wraps back to `0`.
+
+```text
+reset = 1  -> count = 0
+enable = 0 -> count holds
+enable = 1 -> count increments
+count = 9  -> next count = 0
+```
+
+### Seven-Segment Decoder
+
+Maps a 4-bit BCD digit to a 7-bit active-high seven-segment pattern.
+
+Assumed segment convention:
+
+```text
+seg[6:0] = a b c d e f g
+1 = segment ON
+0 = segment OFF
+```
+
+Example mappings:
+
+```text
+0 -> 1111110
+1 -> 0110000
+2 -> 1101101
+```
+
+### Integrated Top Module
+
+The top module connects the BCD counter output to the seven-segment decoder input.
+
+```text
+bcd_counter -> count[3:0] -> seven_seg_decoder -> seg[6:0]
+```
+
+The integrated testbench verifies that the segment output follows the expected digit sequence as the BCD counter increments.
+
+## Running Simulations
+
+Use Icarus Verilog with SystemVerilog support:
+
+```bash
+iverilog -g2012 -o <output_name> <source_files>
+vvp <output_name>
+```
+
+Example: run the Project 6 integrated test.
+
+```bash
+cd "project 6"
+mkdir -p build
+
+iverilog -g2012 -o build/bcd_7seg_top_tb \
+  bcd_counter/bcd_counter.sv \
+  seven_seg_decoder/seven_seg_decoder.sv \
+  bcd_7seg_top/bcd_7seg_top.sv \
+  bcd_7seg_top/bcd_7seg_top_tb.sv
+
+vvp build/bcd_7seg_top_tb
+```
+
+Open the waveform:
+
+```bash
+gtkwave bcd_7seg_top_tb.vcd
+```
+
+## Verification Approach
+
+Each completed module has its own testbench. Later projects use self-checking testbenches that compare actual outputs against expected values and print pass/fail results.
+
+Current verification practices include:
+
+- Clock generation in testbenches
+- Reset and enable testing
+- Expected-value tracking
+- Invalid-input checking
+- Waveform inspection with GTKWave
+- Integrated top-level testing
+
+## Git Ignore Policy
+
+Generated simulation files are not meant to be committed.
+
+Ignored files include:
+
+```text
+*.vcd
+*.out
+*.vvp
+*_tb
+build/
+.DS_Store
+```
+
+## Future Projects
+
+Planned next steps:
+
+- Tick / enable generator
+- Shift register
+- UART transmitter
+- Multi-digit BCD counter
+- Simple ALU
+- VGA timing generator
+- FIFO
+- Valid/ready handshake modules
