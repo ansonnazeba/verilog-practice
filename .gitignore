@@ -1,0 +1,11 @@
+# Simulation outputs
+*.vcd
+*.out
+*.vvp
+*_tb
+
+# Build folders
+build/
+
+# macOS
+.DS_Store
